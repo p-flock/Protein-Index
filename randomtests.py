@@ -35,6 +35,7 @@ def match_class(target):
 #link = rslts[substrt: rslts.find('"', substrt)]
 #print link
 
+# supposesed to get the url from entering the search term into the search bar, don't know what it actually does
 values = {'term' : term } # from html, defined as search term, specifies where and what to put in search box
 data = urllib.urlencode(values) # makes input usable
 request = urllib2.Request(unigeneurl, data, headers) # sends post request
