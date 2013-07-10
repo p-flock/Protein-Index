@@ -51,7 +51,6 @@ resultbook.save('updated_protein_IDs.xls') # saves workbook
 ## methods called in script
 	
 def initial_search(term):
-	# pretty sure this is fucked up
 	# find search box on unigene page
 	# enter term, get resulting url
 	values = {'search' : term } # from html, defined as search term, specifies where and what to put in search box
@@ -67,6 +66,7 @@ def analyze_search(search_page):
 	if "No items found" in str(soup.find('title')):
 		return false
 	rslts = soup.find_all(match_class(["rslt"]))
+	# could maybe replace ^ w/ rslt = soup.find("div", { "class" : "rslt" })
 	rslts = str(rslts)
 	substrt = rslts.find('href') + 6
 	link = rslts[substrt: rslts.find('"', substrt)]
@@ -84,6 +84,10 @@ def scrape_unigene(url):
 
 def scrape_data_final(url):
 	# find NP_ and Gene ID
+	page = urllib2.urlopen(url)
+	soup = BeautifulSoup(page)
+	rslt = soup.find("div", { "class" : "itemid" })
+	# test 'print str(rslt)' to see the output then search for NP_ accordingly
 	result = [NP, GID]
 	return result
 
@@ -91,4 +95,4 @@ def match_class(target):
     def do_match(tag):                                                          
         classes = tag.get('class', [])                                          
         return all(c in classes for c in target)                                
-    return do_match        
+    return do_match                                 
