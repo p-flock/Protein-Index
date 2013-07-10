@@ -54,7 +54,7 @@ def initial_search(term):
 	# pretty sure this is fucked up
 	# find search box on unigene page
 	# enter term, get resulting url
-	values = {'term' : term } # from html, defined as search term, specifies where and what to put in search box
+	values = {'search' : term } # from html, defined as search term, specifies where and what to put in search box
 	data = urllib.urlencode(values) # makes input usable
 	request = urllib2.Request(unigeneurl, data, headers) # sends post request
 	response = urllib2.urlopen(request) # gets url from search
