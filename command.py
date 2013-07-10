@@ -51,6 +51,7 @@ resultbook.save('updated_protein_IDs.xls') # saves workbook
 ## methods called in script
 	
 def initial_search(term):
+	# pretty sure this is fucked up
 	# find search box on unigene page
 	# enter term, get resulting url
 	values = {'term' : term } # from html, defined as search term, specifies where and what to put in search box
