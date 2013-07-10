@@ -1,7 +1,7 @@
 # Peter Flock<3 // 2013
 
 # lots-o-modules!!!
-from mmap import mmap, ACCESS_READ   # I forget why it's here, it's safer to leave it though
+from mmap import mmap, ACCESS_READ 	# I forget why it's here, it's safer to leave it though
 from xlrd import open_workbook		# Reading contents of excel spreadsheets
 from xlwt import Workbook		# writing and saving excel docs
 import re				# I don't remember, k? seriously though what if I need it
@@ -32,9 +32,12 @@ for x in range(1, 1083):
 for value in bcarray():
 	unigene = initial_search(value)
 	searchresults = analyze_search(unigene)
-	final_page = scrape_unigene('http://www.ncbi.nlm.nih.gov' + searchresults)
-	golden_hyde = scrape_data_final(final_page)
-	geneID_Access_num.append(golden_hyde)
+	if searchresults = False:
+		geneID_Access_num.append('')
+	else:
+		final_page = scrape_unigene('http://www.ncbi.nlm.nih.gov' + searchresults)
+		golden_hyde = scrape_data_final(final_page)
+		geneID_Access_num.append(golden_hyde)
 
 # writes the GeneID and Accession number in a new workbook
 for x in range(gen_ID_Access_num.len):
@@ -60,6 +63,8 @@ def initial_search(term):
 def analyze_search(search_page):
 	page = urllib2.urlopen(search_page)
 	soup = BeautifulSoup(page)
+	if "No items found" in str(soup.find('title')):
+		return false
 	rslts = soup.find_all(match_class(["rslt"]))
 	rslts = str(rslts)
 	substrt = rslts.find('href') + 6
@@ -85,4 +90,4 @@ def match_class(target):
     def do_match(tag):                                                          
         classes = tag.get('class', [])                                          
         return all(c in classes for c in target)                                
-    return do_match                                 
+    return do_match        
