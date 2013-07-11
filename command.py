@@ -41,9 +41,8 @@ for value in bcarray():
 
 # writes the GeneID and Accession number in a new workbook
 for x in range(gen_ID_Access_num.len):
-	sheet1.write(0, x, gen_ID_Access_num[0]) # doesn't work, look at array[array] workings
-	sheet1.write(2, x, gen_ID_Access_num[1])
-
+	sheet1.write(0, x, gen_ID_Access_num[x]) # doesn't work, look at array[array] workings
+	
 resultbook.save('updated_protein_IDs.xls') # saves workbook
 
 
@@ -64,7 +63,7 @@ def analyze_search(search_page):
 	page = urllib2.urlopen(search_page)
 	soup = BeautifulSoup(page)
 	if "No items found" in str(soup.find('title')):
-		return false
+		return False
 	rslts = soup.find_all(match_class(["rslt"]))
 	# could maybe replace ^ w/ rslt = soup.find("div", { "class" : "rslt" })
 	rslts = str(rslts)
@@ -88,7 +87,8 @@ def scrape_data_final(url):
 	soup = BeautifulSoup(page)
 	rslt = soup.find("div", { "class" : "itemid" })
 	# test 'print str(rslt)' to see the output then search for NP_ accordingly
-	result = [NP, GID]
+	# if no M. Musculus entry look for H. Sapien
+	result = NP
 	return result
 
 def match_class(target):                                                        
