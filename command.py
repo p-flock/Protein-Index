@@ -84,8 +84,10 @@ def scrape_data_final(url):
 	page = urllib2.urlopen(url)
 	soup = BeautifulSoup(page)
 	table = soup.find('table', { 'class' : 'DataTable' })
+	for tr in table.findAll('tr'):
+		if 'M. musculus' in str(tr):
+		column = tr
 	# test 'print str(rslt)' to see the output then search for NP_ accordingly
 	# if no M. Musculus entry look for H. Sapien
 	return result
-
 
