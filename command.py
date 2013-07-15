@@ -36,8 +36,7 @@ for term in bcarray():
 	if searchresults = False:
 		NPlist`.append('')
 	else:
-		final_page = scrape_unigene('http://www.ncbi.nlm.nih.gov' + searchresults)
-		golden_hyde = scrape_data_final(final_page)
+		golden_hyde = scrape_data_final('http://www.ncbi.nlm.nih.gov' + searchresults)
 		NPlist.append(golden_hyde)
 
 # writes the GeneID and Accession number in a new workbook
@@ -61,7 +60,7 @@ def initial_search(term):
 	return response 
 
 def analyze_search(search_page):
-	page = urllib2.urlopen(search_page)
+	page = search_page.read()
 	soup = BeautifulSoup(page)
 	if "No items found" in str(soup.find('title')):
 		return False
@@ -84,9 +83,9 @@ def scrape_data_final(url):
 	# find NP_
 	page = urllib2.urlopen(url)
 	soup = BeautifulSoup(page)
-	rslt = soup.find("div", { "class" : "itemid" })
+	table = soup.find('table', { 'class' : 'DataTable' })
 	# test 'print str(rslt)' to see the output then search for NP_ accordingly
 	# if no M. Musculus entry look for H. Sapien
 	return result
 
-         
+
