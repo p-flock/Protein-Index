@@ -22,33 +22,10 @@ bcarray = []
 resultbook = Workbook()
 sheet1 = resultbook.add_sheet('Sheet1')
 NPlist = []
-
-##
-## actual command part
-
-# creates an array of all terms-to-be-searched and takes underscores out of them to maket them search-friendly
-for x in range(1, 1083):
-	bcarray.append((bcsheet.cell( x, 3).value).replace('_', ' '))
-
-for term in bcarray():
-	unigene = initial_search(term)
-	searchresults = analyze_search(unigene)
-	if searchresults = False:
-		NPlist`.append('')
-	else:
-		golden_hyde = scrape_data_final('http://www.ncbi.nlm.nih.gov' + searchresults)
-		NPlist.append(golden_hyde)
-
-# writes the GeneID and Accession number in a new workbook
-for x in range(gen_ID_Access_num.len):
-	sheet1.write(0, x, NPlist[x]) 
-	
-resultbook.save('updated_protein_IDs.xls') # saves workbook --- !!! DONE !!! ---
-
+IPIlist = []
 
 ##
 ## methods called in script
-	
 def initial_search(term):
 	# find search box on unigene page
 	# enter term, get resulting url
@@ -56,7 +33,7 @@ def initial_search(term):
 	data = urllib.urlencode(values) # makes input usable
 	request = urllib2.Request(unigeneurl, data, headers) # sends post request
 	response = urllib2.urlopen(request) # gets url from search
-	print response # just checking
+	#print response # just checking
 	return response 
 
 def analyze_search(search_page):
@@ -65,29 +42,65 @@ def analyze_search(search_page):
 	if "No items found" in str(soup.find('title')):
 		return False
 	rslt = str(soup.find("div", { "class" : "rslt" }))
-	substring_start = rslts.find('href') + 6
-	link = rslts[substring_start: substring_end]
+	substring_start = rslt.find('href') + 6
+	substring_end = rslt.find('"', substring_start)
+	link = rslt[substring_start: substring_end]
 	return link
 	# finds all the search results displayed on the page
-#
-# no longer necessary since IDGAF abt gene IDs, just getting NP
-#def scrape_unigene(url):
-	# search table for M. Musculus
-	# find linkable NP_ on that line, find 'Protein Sequence' link
-#	page = urllib2.urlopen(url)
-#	soup = BeautifulSoup(page)
-	# find M. Musculus in 'PortletBox' class and then navigate to the first list item and find the href linked to "protein sequence"
-#	return finalurl
 
 def scrape_data_final(url):
 	# find NP_
+	print url
 	page = urllib2.urlopen(url)
 	soup = BeautifulSoup(page)
 	table = soup.find('table', { 'class' : 'DataTable' })
+	print table
 	for tr in table.findAll('tr'):
 		if 'M. musculus' in str(tr):
-		column = tr
-	# test 'print str(rslt)' to see the output then search for NP_ accordingly
-	# if no M. Musculus entry look for H. Sapien
-	return result
+			column = tr
+			break
+	if not 'M. musculus' in str(column):
+		for tr in table.findAll('tr'):
+			if 'H. Sapien' in str(tr):
+				column = tr
+				break
+	if not 'H. sapien' in str(column) and not 'M. musculus' in str(column):
+		return False
+	else:
+		a = column.find('a')
+		a_string = str(a)
+		substring_start = a_string.find('NP')
+		return a_string[substring_start : -5]
 
+
+##
+## actual command part
+
+# creates an array of all terms-to-be-searched and takes underscores out of them to maket them search-friendly
+for x in range(1, 1083):
+	bcarray.append((bcsheet.cell( x, 3).value).replace('_', ' '))
+
+for term in bcarray:
+	unigene = initial_search(term)
+	searchresults = analyze_search(unigene)
+	print 'search results = %s' % searchresults
+	if searchresults == None:
+		NPlist.append('')
+	else:
+		golden_hyde = scrape_data_final('http://www.ncbi.nlm.nih.gov' + searchresults)
+		if golden_hyde == False:
+			NPlist.append('')
+		else:
+			NPlist.append(golden_hyde)
+
+# writes the GeneID and Accession number in a new workbook
+for x in range(NPlist.len):
+	sheet1.write(0, x, NPlist[x]) 
+
+for x in range(0, 1083):
+	IPIlist.append((bcsheet.cell( x, 4).value))
+
+for x in range(0, 1083):
+	sheet1.write(2, x, IPIlist[x])
+	
+resultbook.save('updated_protein_IDs.xls') # saves workbook --- !!! DONE !!! ---
