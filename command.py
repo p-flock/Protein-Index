@@ -101,16 +101,16 @@ for term in bcarray:
 			NPlist.append(golden_hyde)
 	print term
 	count += 1
-	print "%d out of 1083" % (count)
+	print "%d out of 1082" % (count)
 
 # writes the GeneID and Accession number in a new workbook
 for x in range(len(NPlist)):
-	sheet1.write(0, x, NPlist[x])
+	sheet1.write(x, 0, NPlist[x])
 
 for x in range(1, 1083):
 	IPIlist.append((bcsheet.cell( x, 4).value))
 
 for x in range(0, 1082):
-	sheet1.write(2, x, IPIlist[x])
+	sheet1.write(x, 2, IPIlist[x])
 
 resultbook.save('updated_protein_IDs.xls') # saves workbook --- !!! DONE !!! ---
