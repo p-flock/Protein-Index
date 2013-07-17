@@ -1,5 +1,4 @@
 # Peter Flock<3 // 2013
-
 # lots-o-modules!!!
 from mmap import mmap, ACCESS_READ 	# I forget why it's here, it's safer to leave it though
 from xlrd import open_workbook		# Reading contents of excel spreadsheets
@@ -10,9 +9,9 @@ import urllib 				# send post and get requests to a url
 import urllib2 				# open urls as html docs
 
 #
-# bunch of constants and declarations 
+# bunch of constants and declarations
 unigeneurl =  'http://www.ncbi.nlm.nih.gov/UniGene/'
-# in case the server wants an actual browser ID 
+# in case the server wants an actual browser ID
 user_agent = 'Mozilla/4.0 (compatible; MSIE 5.5; Windows NT)'
 headers = {'User-Agent' : user_agent }
 # non web stuff
@@ -34,7 +33,7 @@ def initial_search(term):
 	request = urllib2.Request("http://www.ncbi.nlm.nih.gov/unigene/", data, headers)# sends post request
 	response = urllib2.urlopen(request) # gets url from search
 	#print response # just checking
-	return response 
+	return response
 
 def analyze_search(search_page):
 	page = search_page.read()
@@ -58,22 +57,25 @@ def scrape_data_final(url):
 	soup = BeautifulSoup(page)
 	table = soup.find('table', { 'class' : 'DataTable' })
 	#print table
-	for tr in table.findAll('tr'):
-		if 'M. musculus' in str(tr):
-			column = tr
-			break
-	if not 'M. musculus' in str(table): 
-		for tr in table.findAll('tr'):
-			if 'H. sapiens' in str(tr):
-				column = tr
-				break
-	if not 'H. sapien' in str(table) and not 'M. musculus' in str(table):
+	if table is None:
 		return False
 	else:
-		a = column.find('a')
-		a_string = str(a)
-		substring_start = a_string.find('NP')
-		return a_string[substring_start : -5]
+		for tr in table.findAll('tr'):
+			if 'M. musculus' in str(tr):
+				column = tr
+				break
+		if not 'M. musculus' in str(table):
+			for tr in table.findAll('tr'):
+				if 'H. sapiens' in str(tr):
+					column = tr
+					break
+		if not 'H. sapien' in str(table) and not 'M. musculus' in str(table):
+			return False
+		else:
+			a = column.find('a')
+			a_string = str(a)
+			substring_start = a_string.find('NP')
+			return a_string[substring_start : -5]
 
 
 ##
@@ -83,11 +85,12 @@ def scrape_data_final(url):
 for x in range(1, 1083):
 	bcarray.append((bcsheet.cell( x, 3).value).replace('_', ' '))
 
+count = 0
 for term in bcarray:
 	unigene = initial_search(term)
 	#print unigene
 	searchresults = analyze_search(unigene)
-	print 'search results = ',  searchresults
+	#print 'search results = ',  searchresults
 	if len(searchresults) == 0 :
 		NPlist.append('')
 	else:
@@ -97,15 +100,17 @@ for term in bcarray:
 		else:
 			NPlist.append(golden_hyde)
 	print term
+	count += 1
+	print "%d out of 1083" % (count)
 
 # writes the GeneID and Accession number in a new workbook
 for x in range(len(NPlist)):
-	sheet1.write(0, x, NPlist[x]) 
+	sheet1.write(0, x, NPlist[x])
 
 for x in range(1, 1083):
 	IPIlist.append((bcsheet.cell( x, 4).value))
 
 for x in range(0, 1082):
 	sheet1.write(2, x, IPIlist[x])
-	
+
 resultbook.save('updated_protein_IDs.xls') # saves workbook --- !!! DONE !!! ---
