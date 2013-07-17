@@ -31,7 +31,7 @@ def initial_search(term):
 	# enter term, get resulting url
 	values = {'term' : term } # from html, defined as search term, specifies where and what to put in search box
 	data = urllib.urlencode(values) # makes input usable
-	request = urllib2.Request(unigeneurl, data, headers) # sends post request
+	request = urllib2.Request("http://www.ncbi.nlm.nih.gov/unigene/", data, headers)# sends post request
 	response = urllib2.urlopen(request) # gets url from search
 	#print response # just checking
 	return response 
@@ -39,32 +39,35 @@ def initial_search(term):
 def analyze_search(search_page):
 	page = search_page.read()
 	soup = BeautifulSoup(page)
-	if "No items found" in str(soup.find('title')):
-		return False
+	#print soup
+	#if "No items found" in str(soup.find('title')):
+	#	return False
+	#print soup.title
 	rslt = str(soup.find("div", { "class" : "rslt" }))
+	#print 'rslt = ', rslt
 	substring_start = rslt.find('href') + 6
 	substring_end = rslt.find('"', substring_start)
-	link = rslt[substring_start: substring_end]
+	link = rslt[substring_start : substring_end]
 	return link
-	# finds all the search results displayed on the page
+	# finds link to unigene page
 
 def scrape_data_final(url):
 	# find NP_
-	print url
+	#print url
 	page = urllib2.urlopen(url)
 	soup = BeautifulSoup(page)
 	table = soup.find('table', { 'class' : 'DataTable' })
-	print table
+	#print table
 	for tr in table.findAll('tr'):
 		if 'M. musculus' in str(tr):
 			column = tr
 			break
-	if not 'M. musculus' in str(column):
+	if not 'M. musculus' in str(table): 
 		for tr in table.findAll('tr'):
-			if 'H. Sapien' in str(tr):
+			if 'H. sapiens' in str(tr):
 				column = tr
 				break
-	if not 'H. sapien' in str(column) and not 'M. musculus' in str(column):
+	if not 'H. sapien' in str(table) and not 'M. musculus' in str(table):
 		return False
 	else:
 		a = column.find('a')
@@ -82,9 +85,10 @@ for x in range(1, 1083):
 
 for term in bcarray:
 	unigene = initial_search(term)
+	#print unigene
 	searchresults = analyze_search(unigene)
-	print 'search results = %s' % searchresults
-	if searchresults == None:
+	print 'search results = ',  searchresults
+	if len(searchresults) == 0 :
 		NPlist.append('')
 	else:
 		golden_hyde = scrape_data_final('http://www.ncbi.nlm.nih.gov' + searchresults)
@@ -92,15 +96,16 @@ for term in bcarray:
 			NPlist.append('')
 		else:
 			NPlist.append(golden_hyde)
+	print term
 
 # writes the GeneID and Accession number in a new workbook
-for x in range(NPlist.len):
+for x in range(len(NPlist)):
 	sheet1.write(0, x, NPlist[x]) 
 
-for x in range(0, 1083):
+for x in range(1, 1083):
 	IPIlist.append((bcsheet.cell( x, 4).value))
 
-for x in range(0, 1083):
+for x in range(0, 1082):
 	sheet1.write(2, x, IPIlist[x])
 	
 resultbook.save('updated_protein_IDs.xls') # saves workbook --- !!! DONE !!! ---
